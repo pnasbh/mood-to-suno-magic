@@ -37,7 +37,7 @@ const MoodInput = ({ onSubmit, isLoading }: MoodInputProps) => {
       imagesBase64 = await Promise.all(images.map((img) => fileToBase64(img.file)));
     }
 
-    onSubmit(fullMood || "이미지 기반 무드 분석", imagesBase64);
+    onSubmit(fullMood || "이미지 기반 무드 분석", imagesBase64, withLyrics);
   };
 
   const fileToBase64 = (file: File): Promise<string> => {
