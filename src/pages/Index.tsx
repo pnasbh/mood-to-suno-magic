@@ -60,8 +60,9 @@ const Index = () => {
   const handleMoodSubmit = async (mood: string, imagesBase64?: string[], withLyrics?: boolean) => {
     setIsLoading(true);
     try {
+      const apiConfig = getApiConfig();
       const { data, error } = await supabase.functions.invoke("analyze-mood", {
-        body: { mood, imagesBase64, withLyrics },
+        body: { mood, imagesBase64, withLyrics, apiConfig },
       });
 
       if (error) {
