@@ -1,7 +1,9 @@
 import { useState, useRef } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Sparkles, ImageIcon, Mic, X, MicOff } from "lucide-react";
+import { Sparkles, ImageIcon, Mic, X, MicOff, FileText } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 
 const MAX_IMAGES = 20;
