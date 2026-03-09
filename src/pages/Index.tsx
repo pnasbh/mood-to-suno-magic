@@ -5,6 +5,7 @@ import MoodPreset, { MoodPresetData } from "@/components/MoodPreset";
 import SunoPromptCard, { SunoPrompt } from "@/components/SunoPromptCard";
 import { Music2, Sparkles, Download } from "lucide-react";
 import { toast } from "sonner";
+import ApiSettings, { getApiConfig } from "@/components/ApiSettings";
 
 interface AnalysisResult {
   preset: MoodPresetData;
