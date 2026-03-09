@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import MoodInput from "@/components/MoodInput";
 import MoodPreset, { MoodPresetData } from "@/components/MoodPreset";
 import SunoPromptCard, { SunoPrompt } from "@/components/SunoPromptCard";
-import { Music2, Sparkles } from "lucide-react";
+import { Music2, Sparkles, Download } from "lucide-react";
 import { toast } from "sonner";
 
 interface AnalysisResult {
