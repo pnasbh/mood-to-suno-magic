@@ -12,7 +12,7 @@ serve(async (req) => {
   }
 
   try {
-    const { mood, imagesBase64 } = await req.json();
+    const { mood, imagesBase64, withLyrics } = await req.json();
 
     if (!mood && (!imagesBase64 || imagesBase64.length === 0)) {
       return new Response(
