@@ -12,11 +12,11 @@ serve(async (req) => {
   }
 
   try {
-    const { mood } = await req.json();
+    const { mood, imageBase64 } = await req.json();
 
-    if (!mood || typeof mood !== "string") {
+    if (!mood && !imageBase64) {
       return new Response(
-        JSON.stringify({ error: "유효한 무드 설명이 필요합니다." }),
+        JSON.stringify({ error: "무드 설명 또는 이미지가 필요합니다." }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -27,7 +27,7 @@ serve(async (req) => {
     }
 
     const systemPrompt = `You are a music mood analyst and Suno AI prompt expert. 
-Analyze the user's mood description and create:
+Analyze the user's mood description (and/or image if provided) and create:
 1. A mood preset with name, description, genres, tempo, energy level, mood tags, and color palette
 2. 10 diverse Suno AI prompts that match this mood
 
@@ -54,7 +54,29 @@ Respond in JSON format with this exact structure:
 
 Make prompts diverse: mix of genres, tempos, and approaches while maintaining the core mood.
 Each prompt should be 50-100 words, detailed enough for Suno to generate quality music.
-Include specific instruments, production styles, vocal types if applicable.`;
+Include specific instruments, production styles, vocal types if applicable.
+If an image is provided, analyze its colors, mood, atmosphere, and subject to derive the musical mood.`;
+
+    // Build user message content - support multimodal
+    const userContent: any[] = [];
+    
+    if (mood) {
+      userContent.push({
+        type: "text",
+        text: `Analyze this mood and create a preset with 10 Suno prompts: "${mood}"`,
+      });
+    }
+    
+    if (imageBase64) {
+      userContent.push({
+        type: "text",
+        text: mood ? "Also consider this image for mood analysis:" : "Analyze this image's mood and create a preset with 10 Suno prompts:",
+      });
+      userContent.push({
+        type: "image_url",
+        image_url: { url: imageBase64 },
+      });
+    }
 
     const response = await fetch(
       "https://ai.gateway.lovable.dev/v1/chat/completions",
@@ -68,10 +90,7 @@ Include specific instruments, production styles, vocal types if applicable.`;
           model: "google/gemini-3-flash-preview",
           messages: [
             { role: "system", content: systemPrompt },
-            {
-              role: "user",
-              content: `Analyze this mood and create a preset with 10 Suno prompts: "${mood}"`,
-            },
+            { role: "user", content: userContent.length === 1 ? userContent[0].text : userContent },
           ],
           temperature: 0.8,
         }),
