@@ -27,7 +27,23 @@ serve(async (req) => {
     }
 
     const lyricsInstruction = withLyrics
-      ? `\nIMPORTANT: For each of the 10 prompts, also generate original lyrics that match the mood, style, and theme. Add a "lyrics" field to each prompt object. Lyrics should be 1-2 verses + chorus, written in Korean (unless the mood suggests another language). Make them poetic and fitting for the musical style.`
+      ? `\nIMPORTANT: For each of the 10 prompts, generate FULL-LENGTH original lyrics for a 3-4 minute song with a complete narrative arc. 
+Each lyrics MUST include ALL of these sections in order:
+[Intro]
+[Verse 1]
+[Pre-Chorus]
+[Chorus]
+[Verse 2]
+[Chorus]
+[Bridge]
+[Outro]
+
+Generate TWO versions of lyrics for each song:
+1. "lyrics_ko": Full Korean lyrics
+2. "lyrics_en": Full English lyrics
+
+Both versions should convey the same emotions and narrative but be naturally written in each language (not direct translations).
+Make lyrics poetic, emotionally resonant, and fitting for the musical style. Each section should have 4-8 lines.`
       : "";
 
     const promptStructure = withLyrics
@@ -36,7 +52,8 @@ serve(async (req) => {
       "title": "Korean song title",
       "prompt": "English Suno prompt describing the musical style, instruments, mood, tempo, genre mix",
       "style": "Genre/Style descriptor",
-      "lyrics": "Korean lyrics (1-2 verses + chorus)"
+      "lyrics_ko": "[Intro]\\n...\\n[Verse 1]\\n...\\n[Pre-Chorus]\\n...\\n[Chorus]\\n...\\n[Verse 2]\\n...\\n[Chorus]\\n...\\n[Bridge]\\n...\\n[Outro]\\n...",
+      "lyrics_en": "[Intro]\\n...\\n[Verse 1]\\n...\\n[Pre-Chorus]\\n...\\n[Chorus]\\n...\\n[Verse 2]\\n...\\n[Chorus]\\n...\\n[Bridge]\\n...\\n[Outro]\\n..."
     }`
       : `{
       "id": 1,
