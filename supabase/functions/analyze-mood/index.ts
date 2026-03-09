@@ -12,9 +12,9 @@ serve(async (req) => {
   }
 
   try {
-    const { mood, imageBase64 } = await req.json();
+    const { mood, imagesBase64 } = await req.json();
 
-    if (!mood && !imageBase64) {
+    if (!mood && (!imagesBase64 || imagesBase64.length === 0)) {
       return new Response(
         JSON.stringify({ error: "무드 설명 또는 이미지가 필요합니다." }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
