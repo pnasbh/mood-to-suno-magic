@@ -12,7 +12,7 @@ serve(async (req) => {
   }
 
   try {
-    const { mood, imagesBase64 } = await req.json();
+    const { mood, imagesBase64, withLyrics } = await req.json();
 
     if (!mood && (!imagesBase64 || imagesBase64.length === 0)) {
       return new Response(
@@ -26,10 +26,30 @@ serve(async (req) => {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
+    const lyricsInstruction = withLyrics
+      ? `\nIMPORTANT: For each of the 10 prompts, also generate original lyrics that match the mood, style, and theme. Add a "lyrics" field to each prompt object. Lyrics should be 1-2 verses + chorus, written in Korean (unless the mood suggests another language). Make them poetic and fitting for the musical style.`
+      : "";
+
+    const promptStructure = withLyrics
+      ? `{
+      "id": 1,
+      "title": "Korean song title",
+      "prompt": "English Suno prompt describing the musical style, instruments, mood, tempo, genre mix",
+      "style": "Genre/Style descriptor",
+      "lyrics": "Korean lyrics (1-2 verses + chorus)"
+    }`
+      : `{
+      "id": 1,
+      "title": "Korean song title",
+      "prompt": "English Suno prompt describing the musical style, instruments, mood, tempo, genre mix",
+      "style": "Genre/Style descriptor"
+    }`;
+
     const systemPrompt = `You are a music mood analyst and Suno AI prompt expert. 
 Analyze the user's mood description (and/or image if provided) and create:
 1. A mood preset with name, description, genres, tempo, energy level, mood tags, and color palette
 2. 10 diverse Suno AI prompts that match this mood
+${lyricsInstruction}
 
 Respond in JSON format with this exact structure:
 {
@@ -43,12 +63,7 @@ Respond in JSON format with this exact structure:
     "color_palette": ["#hex1", "#hex2", "#hex3", "#hex4"]
   },
   "prompts": [
-    {
-      "id": 1,
-      "title": "Korean song title",
-      "prompt": "English Suno prompt describing the musical style, instruments, mood, tempo, genre mix",
-      "style": "Genre/Style descriptor"
-    }
+    ${promptStructure}
   ]
 }
 

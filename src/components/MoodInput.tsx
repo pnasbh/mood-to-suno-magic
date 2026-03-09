@@ -1,7 +1,9 @@
 import { useState, useRef } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Sparkles, ImageIcon, Mic, X, MicOff } from "lucide-react";
+import { Sparkles, ImageIcon, Mic, X, MicOff, FileText } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 
 const MAX_IMAGES = 20;
@@ -12,12 +14,13 @@ interface ImageItem {
 }
 
 interface MoodInputProps {
-  onSubmit: (mood: string, imagesBase64?: string[]) => void;
+  onSubmit: (mood: string, imagesBase64?: string[], withLyrics?: boolean) => void;
   isLoading: boolean;
 }
 
 const MoodInput = ({ onSubmit, isLoading }: MoodInputProps) => {
   const [mood, setMood] = useState("");
+  const [withLyrics, setWithLyrics] = useState(false);
   const [images, setImages] = useState<ImageItem[]>([]);
   const [isRecording, setIsRecording] = useState(false);
   const [transcript, setTranscript] = useState("");
@@ -34,7 +37,7 @@ const MoodInput = ({ onSubmit, isLoading }: MoodInputProps) => {
       imagesBase64 = await Promise.all(images.map((img) => fileToBase64(img.file)));
     }
 
-    onSubmit(fullMood || "이미지 기반 무드 분석", imagesBase64);
+    onSubmit(fullMood || "이미지 기반 무드 분석", imagesBase64, withLyrics);
   };
 
   const fileToBase64 = (file: File): Promise<string> => {
@@ -285,6 +288,24 @@ const MoodInput = ({ onSubmit, isLoading }: MoodInputProps) => {
                 </button>
               ))}
             </div>
+          </div>
+
+          {/* Lyrics toggle */}
+          <div className="flex items-center justify-between mt-5 p-3 rounded-xl bg-muted/30 border border-border">
+            <div className="flex items-center gap-2">
+              <FileText className="w-4 h-4 text-primary" />
+              <Label htmlFor="lyrics-toggle" className="text-sm font-medium text-foreground cursor-pointer">
+                가사 포함 생성
+              </Label>
+              <span className="text-xs text-muted-foreground">
+                프롬프트와 함께 가사를 생성합니다
+              </span>
+            </div>
+            <Switch
+              id="lyrics-toggle"
+              checked={withLyrics}
+              onCheckedChange={setWithLyrics}
+            />
           </div>
 
           <Button
