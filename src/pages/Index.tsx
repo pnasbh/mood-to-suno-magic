@@ -15,11 +15,11 @@ const Index = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<AnalysisResult | null>(null);
 
-  const handleMoodSubmit = async (mood: string) => {
+  const handleMoodSubmit = async (mood: string, imageBase64?: string) => {
     setIsLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke("analyze-mood", {
-        body: { mood },
+        body: { mood, imageBase64 },
       });
 
       if (error) {
