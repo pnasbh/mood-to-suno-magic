@@ -85,7 +85,7 @@ const Index = () => {
     <div className="min-h-screen pb-16">
       {/* Header */}
       <header className="pt-12 pb-8 px-4">
-        <div className="max-w-4xl mx-auto text-center">
+        <div className="max-w-4xl mx-auto text-center relative">
           <div className="flex items-center justify-center gap-3 mb-4">
             <div className="p-3 rounded-2xl bg-gradient-to-br from-primary/20 to-secondary/20 pulse-glow">
               <Music2 className="w-8 h-8 text-primary" />
