@@ -90,6 +90,9 @@ const Index = () => {
             <div className="p-3 rounded-2xl bg-gradient-to-br from-primary/20 to-secondary/20 pulse-glow">
               <Music2 className="w-8 h-8 text-primary" />
             </div>
+            <div className="absolute right-4 top-4">
+              <ApiSettings />
+            </div>
           </div>
           <h1 className="font-display text-4xl md:text-5xl font-bold mb-3">
             <span className="gradient-text">Mood to Suno</span>
