@@ -20,6 +20,7 @@ interface MoodInputProps {
 
 const MoodInput = ({ onSubmit, isLoading }: MoodInputProps) => {
   const [mood, setMood] = useState("");
+  const [withLyrics, setWithLyrics] = useState(false);
   const [images, setImages] = useState<ImageItem[]>([]);
   const [isRecording, setIsRecording] = useState(false);
   const [transcript, setTranscript] = useState("");
