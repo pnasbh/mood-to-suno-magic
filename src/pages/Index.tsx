@@ -129,9 +129,18 @@ const Index = () => {
                       Suno 프롬프트 ({result.prompts.length}곡)
                     </h2>
                   </div>
-                  <span className="text-xs text-muted-foreground">
-                    클릭하여 복사
-                  </span>
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs text-muted-foreground">
+                      클릭하여 복사
+                    </span>
+                    <button
+                      onClick={handleExportMarkdown}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary text-xs font-medium transition-colors"
+                    >
+                      <Download className="w-3.5 h-3.5" />
+                      MD 내보내기
+                    </button>
+                  </div>
                 </div>
                 <div className="grid gap-4 md:grid-cols-2 stagger-in">
                   {result.prompts.map((prompt, index) => (
