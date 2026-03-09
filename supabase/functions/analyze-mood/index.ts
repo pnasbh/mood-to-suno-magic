@@ -6,13 +6,55 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+interface ApiConfig {
+  provider: "lovable" | "openai" | "google";
+  apiKey: string;
+  model: string;
+}
+
+function getEndpointAndHeaders(config: ApiConfig): { url: string; headers: Record<string, string>; model: string } {
+  switch (config.provider) {
+    case "openai":
+      return {
+        url: "https://api.openai.com/v1/chat/completions",
+        headers: {
+          Authorization: `Bearer ${config.apiKey}`,
+          "Content-Type": "application/json",
+        },
+        model: config.model || "gpt-4o",
+      };
+    case "google":
+      return {
+        url: `https://generativelanguage.googleapis.com/v1beta/openai/chat/completions`,
+        headers: {
+          Authorization: `Bearer ${config.apiKey}`,
+          "Content-Type": "application/json",
+        },
+        model: config.model || "gemini-2.5-flash-preview-05-20",
+      };
+    case "lovable":
+    default: {
+      const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+      if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
+      return {
+        url: "https://ai.gateway.lovable.dev/v1/chat/completions",
+        headers: {
+          Authorization: `Bearer ${LOVABLE_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        model: config.model || "google/gemini-3-flash-preview",
+      };
+    }
+  }
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { mood, imagesBase64, withLyrics } = await req.json();
+    const { mood, imagesBase64, withLyrics, apiConfig } = await req.json();
 
     if (!mood && (!imagesBase64 || imagesBase64.length === 0)) {
       return new Response(
@@ -21,10 +63,8 @@ serve(async (req) => {
       );
     }
 
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY is not configured");
-    }
+    const config: ApiConfig = apiConfig || { provider: "lovable", apiKey: "", model: "google/gemini-3-flash-preview" };
+    const { url, headers, model } = getEndpointAndHeaders(config);
 
     const lyricsInstruction = withLyrics
       ? `\nIMPORTANT: For each of the 10 prompts, generate FULL-LENGTH original lyrics for a 3-4 minute song with a complete narrative arc. 
@@ -115,24 +155,18 @@ If an image is provided, analyze its colors, mood, atmosphere, and subject to de
       }
     }
 
-    const response = await fetch(
-      "https://ai.gateway.lovable.dev/v1/chat/completions",
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${LOVABLE_API_KEY}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          model: "google/gemini-3-flash-preview",
-          messages: [
-            { role: "system", content: systemPrompt },
-            { role: "user", content: userContent.length === 1 ? userContent[0].text : userContent },
-          ],
-          temperature: 0.8,
-        }),
-      }
-    );
+    const response = await fetch(url, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({
+        model,
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userContent.length === 1 ? userContent[0].text : userContent },
+        ],
+        temperature: 0.8,
+      }),
+    });
 
     if (!response.ok) {
       if (response.status === 429) {
@@ -148,8 +182,8 @@ If an image is provided, analyze its colors, mood, atmosphere, and subject to de
         );
       }
       const errorText = await response.text();
-      console.error("AI gateway error:", response.status, errorText);
-      throw new Error(`AI gateway error: ${response.status}`);
+      console.error("AI API error:", response.status, errorText);
+      throw new Error(`AI API error (${config.provider}): ${response.status} - ${errorText.slice(0, 200)}`);
     }
 
     const aiResponse = await response.json();
