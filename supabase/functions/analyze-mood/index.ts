@@ -67,15 +67,20 @@ If an image is provided, analyze its colors, mood, atmosphere, and subject to de
       });
     }
     
-    if (imageBase64) {
+    if (imagesBase64 && imagesBase64.length > 0) {
+      const imageCount = imagesBase64.length;
       userContent.push({
         type: "text",
-        text: mood ? "Also consider this image for mood analysis:" : "Analyze this image's mood and create a preset with 10 Suno prompts:",
+        text: mood
+          ? `Also consider these ${imageCount} image(s) for mood analysis:`
+          : `Analyze the mood of these ${imageCount} image(s) and create a preset with 10 Suno prompts:`,
       });
-      userContent.push({
-        type: "image_url",
-        image_url: { url: imageBase64 },
-      });
+      for (const img of imagesBase64) {
+        userContent.push({
+          type: "image_url",
+          image_url: { url: img },
+        });
+      }
     }
 
     const response = await fetch(
