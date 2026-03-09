@@ -12,7 +12,7 @@ interface ImageItem {
 }
 
 interface MoodInputProps {
-  onSubmit: (mood: string, imagesBase64?: string[]) => void;
+  onSubmit: (mood: string, imagesBase64?: string[], withLyrics?: boolean) => void;
   isLoading: boolean;
 }
 
