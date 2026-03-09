@@ -290,6 +290,24 @@ const MoodInput = ({ onSubmit, isLoading }: MoodInputProps) => {
             </div>
           </div>
 
+          {/* Lyrics toggle */}
+          <div className="flex items-center justify-between mt-5 p-3 rounded-xl bg-muted/30 border border-border">
+            <div className="flex items-center gap-2">
+              <FileText className="w-4 h-4 text-primary" />
+              <Label htmlFor="lyrics-toggle" className="text-sm font-medium text-foreground cursor-pointer">
+                가사 포함 생성
+              </Label>
+              <span className="text-xs text-muted-foreground">
+                프롬프트와 함께 가사를 생성합니다
+              </span>
+            </div>
+            <Switch
+              id="lyrics-toggle"
+              checked={withLyrics}
+              onCheckedChange={setWithLyrics}
+            />
+          </div>
+
           <Button
             onClick={handleSubmit}
             disabled={!hasInput || isLoading}

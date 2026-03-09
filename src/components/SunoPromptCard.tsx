@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Copy, Check, Music } from "lucide-react";
+import { Copy, Check, Music, FileText } from "lucide-react";
 import { toast } from "sonner";
 
 export interface SunoPrompt {
@@ -7,6 +7,7 @@ export interface SunoPrompt {
   title: string;
   prompt: string;
   style: string;
+  lyrics?: string;
 }
 
 interface SunoPromptCardProps {
@@ -15,13 +16,22 @@ interface SunoPromptCardProps {
 }
 
 const SunoPromptCard = ({ prompt, index }: SunoPromptCardProps) => {
-  const [copied, setCopied] = useState(false);
+  const [copiedPrompt, setCopiedPrompt] = useState(false);
+  const [copiedLyrics, setCopiedLyrics] = useState(false);
 
-  const handleCopy = async () => {
+  const handleCopyPrompt = async () => {
     await navigator.clipboard.writeText(prompt.prompt);
-    setCopied(true);
+    setCopiedPrompt(true);
     toast.success("프롬프트가 복사되었습니다!");
-    setTimeout(() => setCopied(false), 2000);
+    setTimeout(() => setCopiedPrompt(false), 2000);
+  };
+
+  const handleCopyLyrics = async () => {
+    if (!prompt.lyrics) return;
+    await navigator.clipboard.writeText(prompt.lyrics);
+    setCopiedLyrics(true);
+    toast.success("가사가 복사되었습니다!");
+    setTimeout(() => setCopiedLyrics(false), 2000);
   };
 
   return (
@@ -39,11 +49,11 @@ const SunoPromptCard = ({ prompt, index }: SunoPromptCardProps) => {
           </div>
         </div>
         <button
-          onClick={handleCopy}
+          onClick={handleCopyPrompt}
           className="p-2 rounded-lg bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
           title="프롬프트 복사"
         >
-          {copied ? (
+          {copiedPrompt ? (
             <Check className="w-4 h-4 text-green-400" />
           ) : (
             <Copy className="w-4 h-4" />
@@ -60,6 +70,31 @@ const SunoPromptCard = ({ prompt, index }: SunoPromptCardProps) => {
           {prompt.prompt}
         </p>
       </div>
+
+      {prompt.lyrics && (
+        <div className="mt-3 bg-input/50 rounded-lg p-3 border border-border">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <FileText className="w-3 h-3" />
+              <span>Lyrics</span>
+            </div>
+            <button
+              onClick={handleCopyLyrics}
+              className="p-1.5 rounded-md bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+              title="가사 복사"
+            >
+              {copiedLyrics ? (
+                <Check className="w-3 h-3 text-green-400" />
+              ) : (
+                <Copy className="w-3 h-3" />
+              )}
+            </button>
+          </div>
+          <p className="text-sm text-foreground leading-relaxed whitespace-pre-line">
+            {prompt.lyrics}
+          </p>
+        </div>
+      )}
     </div>
   );
 };
