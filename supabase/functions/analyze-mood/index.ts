@@ -104,26 +104,71 @@ Make lyrics poetic, emotionally resonant, and fitting for the musical style. Eac
 
     const systemPrompt = `You are a music mood analyst and Suno AI prompt expert. 
 Analyze the user's mood description (and/or image if provided) and create:
-1. A mood preset with name, description, genres, tempo, energy level, mood tags, and color palette
+1. A structured project preset following the YAML-compatible schema below
 2. 10 diverse Suno AI prompts that match this mood
 ${lyricsInstruction}
 
 Respond in JSON format with this exact structure:
 {
   "preset": {
-    "name": "Korean preset name (creative, 2-4 words)",
-    "description": "Korean description of the mood (1-2 sentences)",
-    "genres": ["genre1", "genre2", "genre3"],
-    "tempo": "Slow/Medium/Fast/Variable",
-    "energy": "Low/Medium/High/Building",
-    "mood_tags": ["tag1", "tag2", "tag3", "tag4"],
-    "color_palette": ["#hex1", "#hex2", "#hex3", "#hex4"]
+    "project_id": "p-kebab-case-project-name",
+    "project_brief": {
+      "playlist_name": "Creative playlist name",
+      "working_title": "short internal working title",
+      "audience": "target audience description",
+      "use_case": "how this music will be used (e.g. deep work, driving, relaxation)",
+      "differentiator": "what makes this unique compared to generic playlists",
+      "notes": "additional production notes"
+    },
+    "generation": {
+      "preset_name": "Creative Preset Name (2-4 words, Korean)",
+      "mood_keywords": ["keyword1", "keyword2", "keyword3", "keyword4"],
+      "scene": "vivid scene description capturing the atmosphere",
+      "energy_curve": "wave/steady/rising/falling",
+      "vocal_mode": "instrumental/vocal/mixed",
+      "tempo_hint": "slow/medium/fast/variable",
+      "era_hint": "timeless/retro/modern/futuristic",
+      "location_hint": "evocative location description",
+      "reference_words": ["avoid X", "prefer Y imagery", "use Z tones"]
+    },
+    "publishing": {
+      "platform": "youtube",
+      "language_mode": "mixed",
+      "constraints": {
+        "banned_words": ["words to avoid"],
+        "must_include_words": ["required keywords for SEO"],
+        "title_length_hint": "50 to 75 characters",
+        "description_length_hint": "under 900 characters",
+        "thumbnail_text_policy": "minimal overlay text only"
+      },
+      "channel_samples": [
+        {
+          "channel_name": "Sample Channel Name",
+          "audience_or_positioning": "channel positioning description",
+          "video_title": "sample video title for this mood",
+          "description_excerpt": "sample description text",
+          "hashtags": ["#tag1", "#tag2", "#tag3"],
+          "thumbnail_notes": {
+            "subject": "main visual subject",
+            "composition": "framing description",
+            "palette": "color palette description",
+            "text_overlay": "overlay strategy"
+          },
+          "performance_hint": "what drives engagement"
+        }
+      ]
+    },
+    "workflow": {
+      "release_brief_strategy": "manual-seed-plus-derive",
+      "output_language": "mixed"
+    }
   },
   "prompts": [
     ${promptStructure}
   ]
 }
 
+Generate 2-3 channel_samples that represent different angles for publishing this mood as content.
 Make prompts diverse: mix of genres, tempos, and approaches while maintaining the core mood.
 Each prompt should be 50-100 words, detailed enough for Suno to generate quality music.
 Include specific instruments, production styles, vocal types if applicable.
