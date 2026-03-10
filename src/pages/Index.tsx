@@ -3,9 +3,10 @@ import { supabase } from "@/integrations/supabase/client";
 import MoodInput from "@/components/MoodInput";
 import MoodPreset, { MoodPresetData } from "@/components/MoodPreset";
 import SunoPromptCard, { SunoPrompt } from "@/components/SunoPromptCard";
-import { Music2, Sparkles, Download } from "lucide-react";
+import { Music2, Sparkles, Download, FileText } from "lucide-react";
 import { toast } from "sonner";
 import ApiSettings, { getApiConfig } from "@/components/ApiSettings";
+import yaml from "js-yaml";
 
 interface AnalysisResult {
   preset: MoodPresetData;
@@ -16,18 +17,55 @@ const Index = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<AnalysisResult | null>(null);
 
-  const handleExportMarkdown = () => {
+  const handleExportYaml = () => {
     if (!result) return;
     const { preset, prompts } = result;
 
+    const yamlData = {
+      ...preset,
+      prompts: prompts.map((p) => ({
+        id: p.id,
+        title: p.title,
+        prompt: p.prompt,
+        style: p.style,
+        ...(p.lyrics_ko ? { lyrics_ko: p.lyrics_ko } : {}),
+        ...(p.lyrics_en ? { lyrics_en: p.lyrics_en } : {}),
+        ...(p.lyrics && !p.lyrics_ko && !p.lyrics_en ? { lyrics: p.lyrics } : {}),
+      })),
+    };
+
+    const yamlStr = yaml.dump(yamlData, {
+      lineWidth: 120,
+      noRefs: true,
+      quotingType: '"',
+      forceQuotes: false,
+    });
+
+    const blob = new Blob([yamlStr], { type: "text/yaml;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${preset.project_id || preset.generation?.preset_name || "mood-preset"}.yaml`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success("YAML 파일이 다운로드되었습니다!");
+  };
+
+  const handleExportMarkdown = () => {
+    if (!result) return;
+    const { preset, prompts } = result;
+    const gen = preset.generation;
+    const brief = preset.project_brief;
+
     let md = `# 🎵 Mood to Suno - 분석 결과\n\n`;
-    md += `## 무드 프리셋: ${preset.name}\n\n`;
-    md += `> ${preset.description}\n\n`;
+    md += `## 무드 프리셋: ${gen?.preset_name || preset.name || ""}\n\n`;
+    md += `> ${brief?.audience || preset.description || ""}\n\n`;
     md += `| 항목 | 값 |\n|------|----|\n`;
-    md += `| 장르 | ${preset.genres.join(", ")} |\n`;
-    md += `| 템포 | ${preset.tempo} |\n`;
-    md += `| 에너지 | ${preset.energy} |\n`;
-    md += `| 무드 태그 | ${preset.mood_tags.join(", ")} |\n\n`;
+    md += `| 무드 키워드 | ${(gen?.mood_keywords || preset.mood_tags || []).join(", ")} |\n`;
+    md += `| 템포 | ${gen?.tempo_hint || preset.tempo || ""} |\n`;
+    md += `| 에너지 | ${gen?.energy_curve || preset.energy || ""} |\n`;
+    md += `| 보컬 | ${gen?.vocal_mode || ""} |\n`;
+    md += `| 장면 | ${gen?.scene || ""} |\n\n`;
     md += `---\n\n`;
     md += `## Suno 프롬프트 (${prompts.length}곡)\n\n`;
 
@@ -35,15 +73,9 @@ const Index = () => {
       md += `### ${i + 1}. ${p.title}\n\n`;
       md += `**스타일:** ${p.style}\n\n`;
       md += `**프롬프트:**\n\`\`\`\n${p.prompt}\n\`\`\`\n\n`;
-      if (p.lyrics_ko) {
-        md += `**가사 (한국어):**\n\`\`\`\n${p.lyrics_ko}\n\`\`\`\n\n`;
-      }
-      if (p.lyrics_en) {
-        md += `**가사 (English):**\n\`\`\`\n${p.lyrics_en}\n\`\`\`\n\n`;
-      }
-      if (!p.lyrics_ko && !p.lyrics_en && p.lyrics) {
-        md += `**가사:**\n\`\`\`\n${p.lyrics}\n\`\`\`\n\n`;
-      }
+      if (p.lyrics_ko) md += `**가사 (한국어):**\n\`\`\`\n${p.lyrics_ko}\n\`\`\`\n\n`;
+      if (p.lyrics_en) md += `**가사 (English):**\n\`\`\`\n${p.lyrics_en}\n\`\`\`\n\n`;
+      if (!p.lyrics_ko && !p.lyrics_en && p.lyrics) md += `**가사:**\n\`\`\`\n${p.lyrics}\n\`\`\`\n\n`;
       md += `---\n\n`;
     });
 
@@ -51,7 +83,7 @@ const Index = () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `mood-to-suno-${preset.name}.md`;
+    a.download = `mood-to-suno-${gen?.preset_name || preset.name || "export"}.md`;
     a.click();
     URL.revokeObjectURL(url);
     toast.success("마크다운 파일이 다운로드되었습니다!");
@@ -99,8 +131,7 @@ const Index = () => {
           </h1>
           <p className="text-muted-foreground text-lg max-w-xl mx-auto">
             당신의 무드를 분석하여 맞춤형 프리셋과
-            <br className="hidden md:block" /> Suno AI용 음악 프롬프트를
-            생성합니다
+            <br className="hidden md:block" /> Suno AI용 음악 프롬프트를 생성합니다
           </p>
         </div>
       </header>
@@ -108,10 +139,8 @@ const Index = () => {
       {/* Main Content */}
       <main className="px-4">
         <div className="max-w-4xl mx-auto space-y-8">
-          {/* Input Section */}
           <MoodInput onSubmit={handleMoodSubmit} isLoading={isLoading} />
 
-          {/* Results Section */}
           {result && (
             <div className="space-y-8 fade-in">
               {/* Preset */}
@@ -134,26 +163,27 @@ const Index = () => {
                       Suno 프롬프트 ({result.prompts.length}곡)
                     </h2>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <span className="text-xs text-muted-foreground">
-                      클릭하여 복사
-                    </span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-muted-foreground">클릭하여 복사</span>
                     <button
-                      onClick={handleExportMarkdown}
+                      onClick={handleExportYaml}
                       className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary text-xs font-medium transition-colors"
                     >
                       <Download className="w-3.5 h-3.5" />
-                      MD 내보내기
+                      YAML
+                    </button>
+                    <button
+                      onClick={handleExportMarkdown}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-muted/50 hover:bg-muted text-muted-foreground text-xs font-medium transition-colors"
+                    >
+                      <FileText className="w-3.5 h-3.5" />
+                      MD
                     </button>
                   </div>
                 </div>
                 <div className="grid gap-4 md:grid-cols-2 stagger-in">
                   {result.prompts.map((prompt, index) => (
-                    <SunoPromptCard
-                      key={prompt.id}
-                      prompt={prompt}
-                      index={index}
-                    />
+                    <SunoPromptCard key={prompt.id} prompt={prompt} index={index} />
                   ))}
                 </div>
               </section>
