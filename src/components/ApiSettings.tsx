@@ -45,6 +45,9 @@ const PROVIDER_MODELS: Record<string, { label: string; models: { value: string; 
   google: {
     label: "Google AI (Gemini)",
     models: [
+      { value: "gemini-3.1-pro-preview", label: "Gemini 3.1 Pro Preview" },
+      { value: "gemini-3-flash-preview", label: "Gemini 3 Flash Preview" },
+      { value: "gemini-3.1-flash-lite-preview", label: "Gemini 3.1 Flash Lite Preview" },
       { value: "gemini-2.5-flash-preview-05-20", label: "Gemini 2.5 Flash" },
       { value: "gemini-2.5-pro-preview-05-06", label: "Gemini 2.5 Pro" },
       { value: "gemini-2.0-flash", label: "Gemini 2.0 Flash" },
