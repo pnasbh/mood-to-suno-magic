@@ -105,13 +105,34 @@ Make lyrics poetic, emotionally resonant, and fitting for the musical style. Eac
     const systemPrompt = `You are a music mood analyst and Suno AI prompt expert. 
 Analyze the user's mood description (and/or image if provided) and create:
 1. A structured project preset following the YAML-compatible schema below
-2. 10 diverse Suno AI prompts that match this mood
+2. An "episode" object following the PLS Radio episode YAML format
+3. 10 diverse Suno AI prompts that match this mood
 ${lyricsInstruction}
 
 Respond in JSON format with this exact structure:
 {
   "preset": {
     "project_id": "p-kebab-case-project-name",
+    "episode": {
+      "lens": "portrait | landscape | still_life",
+      "series": "P1-P6 for portrait, L1-L6 for landscape, S1-S6 for still_life",
+      "project_slug": "pls-series-descriptive-slug-001",
+      "scene": "vivid scene description with sensory details (e.g. spring evening window, warm curtain air, soft table light)",
+      "place_context": "brief location context (e.g. quiet room by the window)",
+      "time_of_day": "dawn | morning | late_morning | afternoon | late_afternoon | evening | night | late_night",
+      "season": "spring | summer | autumn | winter",
+      "weather": "clear | soft_clouds | overcast | rain | snow | fog | humid | windy",
+      "emotion_primary": "primary emotional tone (e.g. tender calm, open wonder)",
+      "emotion_secondary": "secondary emotional nuance (e.g. quiet hope, gentle melancholy)",
+      "function": "deep_listening | walking | reading_bgm | focus_work | meditation | driving | social_ambient",
+      "cover_motif": "visual motif for cover art (e.g. curtain, window light, soft table edge)",
+      "listener_state": "listener's mental/physical state (e.g. unwinding after work, quiet morning reflection)",
+      "track_count": 10,
+      "variation_axes": ["axes of variation between tracks, e.g. tempo_shift", "instrument_swap", "reverb_depth"],
+      "instrument_hints": ["suggested instruments, e.g. acoustic guitar", "soft piano", "ambient pad"],
+      "texture_keywords": ["sonic textures, e.g. warm", "breathy", "lo-fi hiss", "vinyl crackle"],
+      "sonic_restraints": ["things to avoid, e.g. no hard bass drops", "no aggressive distortion"]
+    },
     "project_brief": {
       "playlist_name": "Creative playlist name",
       "working_title": "short internal working title",
@@ -167,6 +188,13 @@ Respond in JSON format with this exact structure:
     ${promptStructure}
   ]
 }
+
+IMPORTANT for the "episode" object:
+- lens and series MUST match: portrait→P1-P6, landscape→L1-L6, still_life→S1-S6
+- Choose lens based on the mood: portrait for intimate/personal, landscape for open/spacious, still_life for quiet/focused
+- scene should be rich with sensory keywords separated by commas
+- instrument_hints, texture_keywords, variation_axes, sonic_restraints should each have 3-6 items
+- Infer appropriate time_of_day, season, weather from the mood description
 
 Generate 2-3 channel_samples that represent different angles for publishing this mood as content.
 Make prompts diverse: mix of genres, tempos, and approaches while maintaining the core mood.
