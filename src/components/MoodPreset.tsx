@@ -90,14 +90,22 @@ interface MoodPresetProps {
 const MoodPreset = ({ preset }: MoodPresetProps) => {
   const gen = preset.generation;
   const brief = preset.project_brief;
+  const ep = preset.episode;
 
   return (
     <div className="card-glass rounded-2xl p-6 glow-border fade-in space-y-6">
       {/* Header */}
       <div>
-        <h3 className="font-display text-2xl font-bold gradient-text">
-          {gen?.preset_name || preset.name || "Untitled"}
-        </h3>
+        <div className="flex items-center gap-2 mb-1">
+          <h3 className="font-display text-2xl font-bold gradient-text">
+            {gen?.preset_name || preset.name || "Untitled"}
+          </h3>
+          {ep?.lens && (
+            <span className="text-xs px-2 py-0.5 rounded-md bg-accent/20 text-accent-foreground font-medium">
+              {ep.lens} · {ep.series}
+            </span>
+          )}
+        </div>
         <p className="text-muted-foreground mt-1">
           {brief?.audience || preset.description || ""}
         </p>
