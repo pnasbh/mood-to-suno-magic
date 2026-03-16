@@ -1,7 +1,29 @@
 import { Palette, Music2, Zap, Heart, MapPin, Mic, Clock, Layers, Target } from "lucide-react";
 
+export interface EpisodeData {
+  lens: string;
+  series: string;
+  project_slug: string;
+  scene: string;
+  place_context: string;
+  time_of_day: string;
+  season: string;
+  weather: string;
+  emotion_primary: string;
+  emotion_secondary: string;
+  function: string;
+  cover_motif: string;
+  listener_state: string;
+  track_count: number;
+  variation_axes: string[];
+  instrument_hints: string[];
+  texture_keywords: string[];
+  sonic_restraints: string[];
+}
+
 export interface MoodPresetData {
   project_id: string;
+  episode?: EpisodeData;
   project_brief: {
     playlist_name: string;
     working_title: string;

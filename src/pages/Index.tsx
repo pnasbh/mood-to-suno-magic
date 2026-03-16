@@ -21,6 +21,7 @@ const Index = () => {
     if (!result) return;
     const { preset, prompts } = result;
 
+    // Full project YAML (existing format)
     const yamlData = {
       ...preset,
       prompts: prompts.map((p) => ({
@@ -49,6 +50,50 @@ const Index = () => {
     a.click();
     URL.revokeObjectURL(url);
     toast.success("YAML 파일이 다운로드되었습니다!");
+  };
+
+  const handleExportEpisodeYaml = () => {
+    if (!result) return;
+    const { preset } = result;
+    const ep = preset.episode;
+    const gen = preset.generation;
+
+    const episodeData: Record<string, any> = {
+      lens: ep?.lens || "portrait",
+      series: ep?.series || "P1",
+      project_slug: ep?.project_slug || preset.project_id || "untitled",
+      scene: ep?.scene || gen?.scene || "",
+      place_context: ep?.place_context || gen?.location_hint || "",
+      time_of_day: ep?.time_of_day || "evening",
+      season: ep?.season || "spring",
+      weather: ep?.weather || "clear",
+      emotion_primary: ep?.emotion_primary || (gen?.mood_keywords?.[0]) || "",
+      emotion_secondary: ep?.emotion_secondary || (gen?.mood_keywords?.[1]) || "",
+      function: ep?.function || "deep_listening",
+      cover_motif: ep?.cover_motif || "",
+      listener_state: ep?.listener_state || "",
+      track_count: ep?.track_count || 10,
+      variation_axes: ep?.variation_axes || [],
+      instrument_hints: ep?.instrument_hints || [],
+      texture_keywords: ep?.texture_keywords || [],
+      sonic_restraints: ep?.sonic_restraints || [],
+    };
+
+    const yamlStr = yaml.dump(episodeData, {
+      lineWidth: 120,
+      noRefs: true,
+      quotingType: '"',
+      forceQuotes: false,
+    });
+
+    const blob = new Blob([yamlStr], { type: "text/yaml;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${episodeData.project_slug}.yaml`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success("Episode YAML 파일이 다운로드되었습니다!");
   };
 
   const handleExportMarkdown = () => {
