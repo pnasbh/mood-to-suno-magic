@@ -228,39 +228,100 @@ If an image is provided, analyze its colors, mood, atmosphere, and subject to de
       }
     }
 
-    const response = await fetch(url, {
-      method: "POST",
-      headers,
-      body: JSON.stringify({
-        model,
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userContent.length === 1 ? userContent[0].text : userContent },
-        ],
-        temperature: 0.8,
-      }),
+    const requestBody = JSON.stringify({
+      model,
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userContent.length === 1 ? userContent[0].text : userContent },
+      ],
+      temperature: 0.8,
     });
 
-    if (!response.ok) {
-      if (response.status === 429) {
-        return new Response(
-          JSON.stringify({ error: "Rate limit exceeded. Please try again later." }),
-          { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
+    // Retry logic with fallback to Lovable gateway
+    const MAX_RETRIES = 2;
+    let lastError = "";
+    let content: string | null = null;
+
+    for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+      let currentUrl = url;
+      let currentHeaders = headers;
+      let currentBody = requestBody;
+
+      // On final retry, fallback to Lovable gateway if using external provider
+      if (attempt === MAX_RETRIES && config.provider !== "lovable") {
+        console.log("Falling back to Lovable AI Gateway...");
+        const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+        if (LOVABLE_API_KEY) {
+          currentUrl = "https://ai.gateway.lovable.dev/v1/chat/completions";
+          currentHeaders = {
+            Authorization: `Bearer ${LOVABLE_API_KEY}`,
+            "Content-Type": "application/json",
+          };
+          currentBody = JSON.stringify({
+            model: "google/gemini-3-flash-preview",
+            messages: [
+              { role: "system", content: systemPrompt },
+              { role: "user", content: userContent.length === 1 ? userContent[0].text : userContent },
+            ],
+            temperature: 0.8,
+          });
+        }
       }
-      if (response.status === 402) {
-        return new Response(
-          JSON.stringify({ error: "Payment required. Please add credits." }),
-          { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
+
+      try {
+        const response = await fetch(currentUrl, {
+          method: "POST",
+          headers: currentHeaders,
+          body: currentBody,
+        });
+
+        if (response.status === 429) {
+          return new Response(
+            JSON.stringify({ error: "요청이 너무 많습니다. 잠시 후 다시 시도해주세요." }),
+            { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+        if (response.status === 402) {
+          return new Response(
+            JSON.stringify({ error: "크레딧이 부족합니다. 충전 후 다시 시도해주세요." }),
+            { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          lastError = `AI API error (${config.provider}): ${response.status} - ${errorText.slice(0, 200)}`;
+          console.error(`Attempt ${attempt + 1} failed:`, lastError);
+          // Retry on 503/500/502/504
+          if ([500, 502, 503, 504].includes(response.status) && attempt < MAX_RETRIES) {
+            await new Promise(r => setTimeout(r, 1000 * (attempt + 1)));
+            continue;
+          }
+          throw new Error(lastError);
+        }
+
+        const aiResponse = await response.json();
+        content = aiResponse.choices?.[0]?.message?.content;
+        if (content) break;
+        
+        lastError = "No content in AI response";
+        if (attempt < MAX_RETRIES) {
+          await new Promise(r => setTimeout(r, 1000));
+          continue;
+        }
+      } catch (fetchErr) {
+        lastError = fetchErr instanceof Error ? fetchErr.message : String(fetchErr);
+        console.error(`Attempt ${attempt + 1} error:`, lastError);
+        if (attempt < MAX_RETRIES) {
+          await new Promise(r => setTimeout(r, 1000 * (attempt + 1)));
+          continue;
+        }
       }
-      const errorText = await response.text();
-      console.error("AI API error:", response.status, errorText);
-      throw new Error(`AI API error (${config.provider}): ${response.status} - ${errorText.slice(0, 200)}`);
     }
 
-    const aiResponse = await response.json();
-    const content = aiResponse.choices?.[0]?.message?.content;
+    if (!content) {
+      throw new Error(lastError || "All AI attempts failed");
+    }
 
     if (!content) {
       throw new Error("No content in AI response");
