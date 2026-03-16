@@ -211,6 +211,13 @@ const Index = () => {
                   <div className="flex items-center gap-2">
                     <span className="text-xs text-muted-foreground">클릭하여 복사</span>
                     <button
+                      onClick={handleExportEpisodeYaml}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/20 hover:bg-accent/30 text-accent-foreground text-xs font-medium transition-colors"
+                    >
+                      <Download className="w-3.5 h-3.5" />
+                      Episode
+                    </button>
+                    <button
                       onClick={handleExportYaml}
                       className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary text-xs font-medium transition-colors"
                     >
