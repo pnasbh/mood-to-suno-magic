@@ -1,4 +1,4 @@
-import { Palette, Music2, Zap, Heart, MapPin, Mic, Clock, Layers, Target } from "lucide-react";
+import { Palette, Music2, Zap, Heart, MapPin, Mic, Clock, Layers, Target, Eye, Thermometer, Cloud } from "lucide-react";
 
 export interface EpisodeData {
   lens: string;
