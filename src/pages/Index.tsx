@@ -148,11 +148,44 @@ const Index = () => {
         return;
       }
 
-      setResult(data);
+      if (!data || data.error) {
+        console.error("API returned error:", data?.error);
+        toast.error(data?.error || "무드 분석에 실패했습니다.");
+        return;
+      }
+
+      // Normalize response: handle both {preset, prompts} and flat structures
+      let normalizedResult: AnalysisResult;
+      if (data.preset && data.prompts) {
+        normalizedResult = data as AnalysisResult;
+      } else if (data.prompts) {
+        const { prompts, ...rest } = data;
+        normalizedResult = { preset: rest as MoodPresetData, prompts };
+      } else {
+        console.error("Unexpected response structure:", JSON.stringify(data).slice(0, 500));
+        toast.error("AI 응답 형식이 올바르지 않습니다. 다시 시도해주세요.");
+        return;
+      }
+
+      // Ensure nested objects exist to prevent render crashes
+      if (!normalizedResult.preset.generation) {
+        normalizedResult.preset.generation = {
+          preset_name: "", mood_keywords: [], scene: "", energy_curve: "",
+          vocal_mode: "", tempo_hint: "", era_hint: "", location_hint: "", reference_words: [],
+        };
+      }
+      if (!normalizedResult.preset.project_brief) {
+        normalizedResult.preset.project_brief = {
+          playlist_name: "", working_title: "", audience: "", use_case: "",
+          differentiator: "", notes: "",
+        };
+      }
+
+      setResult(normalizedResult);
       toast.success("무드 분석이 완료되었습니다!");
     } catch (err) {
       console.error("Error analyzing mood:", err);
-      toast.error("오류가 발생했습니다.");
+      toast.error("오류가 발생했습니다. 다시 시도해주세요.");
     } finally {
       setIsLoading(false);
     }
