@@ -116,7 +116,66 @@ const MoodPreset = ({ preset }: MoodPresetProps) => {
         )}
       </div>
 
-      {/* Project Brief */}
+      {/* Episode Info */}
+      {ep && (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="bg-muted/30 rounded-xl p-3">
+            <div className="flex items-center gap-1.5 text-muted-foreground mb-1">
+              <Eye className="w-3.5 h-3.5" />
+              <span className="text-xs font-medium">장면</span>
+            </div>
+            <p className="text-xs text-foreground">{ep.scene}</p>
+          </div>
+          <div className="bg-muted/30 rounded-xl p-3">
+            <div className="flex items-center gap-1.5 text-muted-foreground mb-1">
+              <Clock className="w-3.5 h-3.5" />
+              <span className="text-xs font-medium">시간 / 계절</span>
+            </div>
+            <p className="text-xs text-foreground">{ep.time_of_day} · {ep.season}</p>
+          </div>
+          <div className="bg-muted/30 rounded-xl p-3">
+            <div className="flex items-center gap-1.5 text-muted-foreground mb-1">
+              <Cloud className="w-3.5 h-3.5" />
+              <span className="text-xs font-medium">날씨</span>
+            </div>
+            <p className="text-xs text-foreground">{ep.weather}</p>
+          </div>
+          <div className="bg-muted/30 rounded-xl p-3">
+            <div className="flex items-center gap-1.5 text-muted-foreground mb-1">
+              <Heart className="w-3.5 h-3.5" />
+              <span className="text-xs font-medium">감정</span>
+            </div>
+            <p className="text-xs text-foreground">{ep.emotion_primary}</p>
+            <p className="text-xs text-muted-foreground">{ep.emotion_secondary}</p>
+          </div>
+        </div>
+      )}
+      {ep && (ep.instrument_hints?.length > 0 || ep.texture_keywords?.length > 0) && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          {ep.instrument_hints?.length > 0 && (
+            <div className="bg-muted/30 rounded-xl p-3">
+              <span className="text-xs font-medium text-muted-foreground">악기 힌트</span>
+              <div className="flex flex-wrap gap-1 mt-1">
+                {ep.instrument_hints.map((h, i) => (
+                  <span key={i} className="text-xs px-2 py-0.5 rounded-md bg-primary/10 text-primary">{h}</span>
+                ))}
+              </div>
+            </div>
+          )}
+          {ep.texture_keywords?.length > 0 && (
+            <div className="bg-muted/30 rounded-xl p-3">
+              <span className="text-xs font-medium text-muted-foreground">텍스처</span>
+              <div className="flex flex-wrap gap-1 mt-1">
+                {ep.texture_keywords.map((t, i) => (
+                  <span key={i} className="text-xs px-2 py-0.5 rounded-md bg-secondary/10 text-secondary">{t}</span>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+
       {brief && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {brief.use_case && (
