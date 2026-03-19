@@ -2,14 +2,9 @@ import { Palette, Music2, Zap, Heart, MapPin, Mic, Clock, Layers, Target, Eye, T
 
 export interface EpisodeData {
   brand: string;
-  channel: string;
-  lens: string;
-  series_code: string;
-  series_name: string;
   project_slug: string;
+  series_code: string;
   scene: string;
-  scene_axis: string;
-  use_context: string;
   place_context: string;
   time_of_day: string;
   season: string;
@@ -17,20 +12,106 @@ export interface EpisodeData {
   emotion_primary: string;
   emotion_secondary: string;
   function: string;
-  cover_motif: string;
-  listener_state: string;
-  track_count: number;
-  variation_axes: string[];
+  mood_keywords: string[];
+  tempo_feel: string;
+  groove_profile: string;
+  vocal_mode: string;
   instrument_hints: string[];
-  texture_keywords: string[];
+  sonic_keywords: string[];
   sonic_restraints: string[];
-  sound_rules: string[];
-  avoid_rules: string[];
+  cover_motif: string;
+  track_count: number;
+  lyrics_track_count: number;
+  language_mode: string;
+  marketing_platforms: string[];
+  // legacy/optional fields
+  channel?: string;
+  lens?: string;
+  series_name?: string;
+  scene_axis?: string;
+  use_context?: string;
+  listener_state?: string;
+  variation_axes?: string[];
+  texture_keywords?: string[];
+  sound_rules?: string[];
+  avoid_rules?: string[];
+}
+
+export interface UploadPackData {
+  playlist_identity: {
+    brand: string;
+    series: string;
+    project_slug: string;
+    scene: string;
+    function_ko: string;
+    emotion: string;
+    series_copy_hook: string;
+  };
+  source_rules: {
+    identity_guide: string;
+    voice_guide: string;
+    visual_guide: string;
+  };
+  packaging_direction: {
+    voice_north_star: string;
+    visual_north_star: string;
+    cta_tone: string;
+    next_scene_expansion: string;
+  };
+  primary_title: {
+    final_title: string;
+    ko_reference_title: string;
+    display_label: string;
+  };
+  title_candidates: {
+    safe: string;
+    search_friendly: string;
+    editorial: string;
+  };
+  messaging_guardrails: string[];
+  description_intent: {
+    scene_phrase: string;
+    motion_hint: string;
+    primary_visual_anchor: string;
+    supporting_detail: string;
+  };
+  description_pack: {
+    ko_short: string;
+    ko_standard: string;
+    storyline: {
+      opening: string;
+      middle: string;
+      closing: string;
+    };
+    en_short: string;
+    en_standard: string;
+  };
+  search_metadata: {
+    keywords: string;
+    hashtags: string;
+    scene_anchor: string;
+    series_anchor: string;
+    search_intent_notes: string;
+  };
+  thumbnail_brief: {
+    visual_motif: string;
+    primary_anchor: string;
+    supporting_detail: string;
+    light: string;
+    light_logic: string;
+    surface_focus: string;
+    color_bias: string;
+    text_rules: string[];
+    avoid: string[];
+  };
+  publishing_guardrails: string[];
+  pinned_comment: string;
 }
 
 export interface MoodPresetData {
   project_id: string;
   episode?: EpisodeData;
+  upload_pack?: UploadPackData;
   project_brief: {
     playlist_name: string;
     working_title: string;
@@ -107,9 +188,9 @@ const MoodPreset = ({ preset }: MoodPresetProps) => {
           <h3 className="font-display text-2xl font-bold gradient-text">
             {gen?.preset_name || preset.name || "Untitled"}
           </h3>
-          {ep?.lens && (
+          {ep?.series_code && (
             <span className="text-xs px-2 py-0.5 rounded-md bg-accent/20 text-accent-foreground font-medium">
-              {ep.brand} · {ep.series_code} {ep.series_name}
+              {ep.brand} · {ep.series_code} {ep.series_name || ""}
             </span>
           )}
         </div>
@@ -157,7 +238,9 @@ const MoodPreset = ({ preset }: MoodPresetProps) => {
           </div>
         </div>
       )}
-      {ep && (ep.instrument_hints?.length > 0 || ep.texture_keywords?.length > 0) && (
+
+      {/* Sonic details */}
+      {ep && (ep.instrument_hints?.length > 0 || ep.sonic_keywords?.length > 0) && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {ep.instrument_hints?.length > 0 && (
             <div className="bg-muted/30 rounded-xl p-3">
@@ -169,11 +252,11 @@ const MoodPreset = ({ preset }: MoodPresetProps) => {
               </div>
             </div>
           )}
-          {ep.texture_keywords?.length > 0 && (
+          {ep.sonic_keywords?.length > 0 && (
             <div className="bg-muted/30 rounded-xl p-3">
-              <span className="text-xs font-medium text-muted-foreground">텍스처</span>
+              <span className="text-xs font-medium text-muted-foreground">소닉 키워드</span>
               <div className="flex flex-wrap gap-1 mt-1">
-                {ep.texture_keywords.map((t, i) => (
+                {ep.sonic_keywords.map((t, i) => (
                   <span key={i} className="text-xs px-2 py-0.5 rounded-md bg-secondary/10 text-secondary">{t}</span>
                 ))}
               </div>
@@ -182,6 +265,23 @@ const MoodPreset = ({ preset }: MoodPresetProps) => {
         </div>
       )}
 
+      {/* Tempo & Groove */}
+      {ep && (ep.tempo_feel || ep.groove_profile) && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          {ep.tempo_feel && (
+            <div className="bg-muted/30 rounded-xl p-3">
+              <span className="text-xs font-medium text-muted-foreground">템포</span>
+              <p className="text-xs text-foreground mt-1">{ep.tempo_feel}</p>
+            </div>
+          )}
+          {ep.groove_profile && (
+            <div className="bg-muted/30 rounded-xl p-3">
+              <span className="text-xs font-medium text-muted-foreground">그루브</span>
+              <p className="text-xs text-foreground mt-1">{ep.groove_profile}</p>
+            </div>
+          )}
+        </div>
+      )}
 
       {brief && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
