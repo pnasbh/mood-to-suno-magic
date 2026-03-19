@@ -346,6 +346,13 @@ ${brief?.audience || ""} ${brief?.use_case ? "| " + brief.use_case : ""}
                       Episode
                     </button>
                     <button
+                      onClick={handleExportUploadPack}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary/10 hover:bg-secondary/20 text-secondary text-xs font-medium transition-colors"
+                    >
+                      <Package className="w-3.5 h-3.5" />
+                      Upload Pack
+                    </button>
+                    <button
                       onClick={handleExportYaml}
                       className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary text-xs font-medium transition-colors"
                     >
