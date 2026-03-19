@@ -21,7 +21,6 @@ const Index = () => {
     if (!result) return;
     const { preset, prompts } = result;
 
-    // Full project YAML (existing format)
     const yamlData = {
       ...preset,
       prompts: prompts.map((p) => ({
@@ -35,13 +34,7 @@ const Index = () => {
       })),
     };
 
-    const yamlStr = yaml.dump(yamlData, {
-      lineWidth: 120,
-      noRefs: true,
-      quotingType: '"',
-      forceQuotes: false,
-    });
-
+    const yamlStr = yaml.dump(yamlData, { lineWidth: 120, noRefs: true, quotingType: '"', forceQuotes: false });
     const blob = new Blob([yamlStr], { type: "text/yaml;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -56,43 +49,36 @@ const Index = () => {
     if (!result) return;
     const { preset } = result;
     const ep = preset.episode;
-    const gen = preset.generation;
+    if (!ep) return;
 
+    // Match exact sample YAML format
     const episodeData: Record<string, any> = {
-      brand: ep?.brand || "PLS Radio",
-      channel: ep?.channel || "pls-radio",
-      lens: ep?.lens || "portrait",
-      series_code: ep?.series_code || "P1",
-      series_name: ep?.series_name || "Tender Portraits",
-      project_slug: ep?.project_slug || preset.project_id || "untitled",
-      scene: ep?.scene || gen?.scene || "",
-      scene_axis: ep?.scene_axis || "",
-      use_context: ep?.use_context || "",
-      place_context: ep?.place_context || gen?.location_hint || "",
-      time_of_day: ep?.time_of_day || "evening",
-      season: ep?.season || "spring",
-      weather: ep?.weather || "clear",
-      emotion_primary: ep?.emotion_primary || (gen?.mood_keywords?.[0]) || "",
-      emotion_secondary: ep?.emotion_secondary || (gen?.mood_keywords?.[1]) || "",
-      function: ep?.function || "deep_listening",
-      cover_motif: ep?.cover_motif || "",
-      listener_state: ep?.listener_state || "",
-      track_count: ep?.track_count || 10,
-      variation_axes: ep?.variation_axes || [],
-      instrument_hints: ep?.instrument_hints || [],
-      texture_keywords: ep?.texture_keywords || [],
-      sonic_restraints: ep?.sonic_restraints || [],
-      sound_rules: ep?.sound_rules || [],
-      avoid_rules: ep?.avoid_rules || [],
+      brand: ep.brand || "",
+      project_slug: ep.project_slug || preset.project_id || "",
+      series_code: ep.series_code || "",
+      scene: ep.scene || "",
+      place_context: ep.place_context || "",
+      time_of_day: ep.time_of_day || "",
+      season: ep.season || "",
+      weather: ep.weather || "",
+      emotion_primary: ep.emotion_primary || "",
+      emotion_secondary: ep.emotion_secondary || "",
+      function: ep.function || "",
+      mood_keywords: ep.mood_keywords || [],
+      tempo_feel: ep.tempo_feel || "",
+      groove_profile: ep.groove_profile || "",
+      vocal_mode: ep.vocal_mode || "",
+      instrument_hints: ep.instrument_hints || [],
+      sonic_keywords: ep.sonic_keywords || [],
+      sonic_restraints: ep.sonic_restraints || [],
+      cover_motif: ep.cover_motif || "",
+      track_count: ep.track_count || 10,
+      lyrics_track_count: ep.lyrics_track_count ?? 0,
+      language_mode: ep.language_mode || "mixed",
+      marketing_platforms: ep.marketing_platforms || [],
     };
 
-    const yamlStr = yaml.dump(episodeData, {
-      lineWidth: 120,
-      noRefs: true,
-      quotingType: '"',
-      forceQuotes: false,
-    });
-
+    const yamlStr = yaml.dump(episodeData, { lineWidth: 120, noRefs: true, quotingType: '"', forceQuotes: false });
     const blob = new Blob([yamlStr], { type: "text/yaml;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -106,74 +92,100 @@ const Index = () => {
   const handleExportUploadPack = () => {
     if (!result) return;
     const { preset, prompts } = result;
-    const ep = preset.episode;
-    const gen = preset.generation;
-    const brief = preset.project_brief;
-    const pub = preset.publishing;
-    const sample = pub?.channel_samples?.[0];
+    const up = preset.upload_pack;
+    if (!up) return;
 
-    const tracklist = prompts.slice(0, 10).map((p, i) => `${String(i + 1).padStart(2, "0")}. ${p.title}`).join("\n");
+    const tracklist = prompts.slice(0, 10).map((p, i) => `- ${String(i + 1).padStart(2, "0")}. ${p.title}`).join("\n");
 
-    const uploadPack = `# Upload Pack Template
+    const uploadPack = `# Upload Pack
 
 ## Playlist Identity
+- Brand: ${up.playlist_identity.brand}
+- Series: ${up.playlist_identity.series}
+- Project Slug: ${up.playlist_identity.project_slug}
+- Scene: ${up.playlist_identity.scene}
+- Function: ${up.playlist_identity.function_ko}
+- Emotion: ${up.playlist_identity.emotion}
+- Series Copy Hook: ${up.playlist_identity.series_copy_hook}
 
-- Brand: ${ep?.brand || "PLS Radio"}
-- Series: ${ep?.series_code || ""} ${ep?.series_name || ""}
-- Project Slug: ${ep?.project_slug || preset.project_id || ""}
-- Scene: ${ep?.scene || gen?.scene || ""}
-- Function: ${ep?.function || "deep_listening"}
-- Emotion: ${ep?.emotion_primary || ""}${ep?.emotion_secondary ? " / " + ep.emotion_secondary : ""}
+## Source Rules
+- Identity Guide: ${up.source_rules.identity_guide}
+- Voice Guide: ${up.source_rules.voice_guide}
+- Visual Guide: ${up.source_rules.visual_guide}
+
+## Packaging Direction
+- Voice North Star: ${up.packaging_direction.voice_north_star}
+- Visual North Star: ${up.packaging_direction.visual_north_star}
+- CTA Tone: ${up.packaging_direction.cta_tone}
+- Next Scene Expansion: ${up.packaging_direction.next_scene_expansion}
 
 ## Primary Title
-
-- Final Title: ${brief?.playlist_name || gen?.preset_name || ""}
-- KO Reference Title: ${gen?.preset_name || ""}
-- Display Label: ${ep?.series_code || ""} · ${ep?.series_name || ""}
+- Final Title: ${up.primary_title.final_title}
+- KO Reference Title: ${up.primary_title.ko_reference_title}
+- Display Label: ${up.primary_title.display_label}
 
 ## Title Candidates
+- Safe: ${up.title_candidates.safe}
+- Search-friendly: ${up.title_candidates.search_friendly}
+- Editorial: ${up.title_candidates.editorial}
 
-- Safe: ${brief?.playlist_name || ""}
-- Search-friendly: ${sample?.video_title || ""}
-- Editorial: ${brief?.working_title || ""}
+## Messaging Guardrails
+${(up.messaging_guardrails || []).map(g => `- ${g}`).join("\n")}
+
+## Description Intent
+- Scene Phrase: ${up.description_intent.scene_phrase}
+- Motion Hint: ${up.description_intent.motion_hint}
+- Primary Visual Anchor: ${up.description_intent.primary_visual_anchor}
+- Supporting Detail: ${up.description_intent.supporting_detail}
 
 ## Description Pack
-
 ### KO Short
-${brief?.audience || ""} ${brief?.use_case ? "— " + brief.use_case : ""}
+${up.description_pack.ko_short}
 
 ### KO Standard
-${gen?.scene || ""} ${brief?.differentiator ? "\n" + brief.differentiator : ""}${brief?.notes ? "\n" + brief.notes : ""}
+${up.description_pack.ko_standard}
+
+### Storyline
+- Opening: ${up.description_pack.storyline.opening}
+- Middle: ${up.description_pack.storyline.middle}
+- Closing: ${up.description_pack.storyline.closing}
 
 ### EN Short
-${sample?.description_excerpt || ""}
+${up.description_pack.en_short}
 
 ### EN Standard
-${sample?.description_excerpt || ""} ${sample?.performance_hint ? "\n" + sample.performance_hint : ""}
+${up.description_pack.en_standard}
 
 ## Tracklist Preview
-
 ${tracklist}
 
 ## Search Metadata
-
-- Keywords: ${(gen?.mood_keywords || []).join(", ")}
-- Hashtags: ${(sample?.hashtags || []).join(" ")}
-- Search intent notes: ${ep?.use_context || ""}
+- Keywords: ${up.search_metadata.keywords}
+- Hashtags: ${up.search_metadata.hashtags}
+- Scene anchor: ${up.search_metadata.scene_anchor}
+- Series anchor: ${up.search_metadata.series_anchor}
+- Search intent notes: ${up.search_metadata.search_intent_notes}
 
 ## Thumbnail Brief
+- Visual motif: ${up.thumbnail_brief.visual_motif}
+- Primary anchor: ${up.thumbnail_brief.primary_anchor}
+- Supporting detail: ${up.thumbnail_brief.supporting_detail}
+- Light: ${up.thumbnail_brief.light}
+- Light logic: ${up.thumbnail_brief.light_logic}
+- Surface focus: ${up.thumbnail_brief.surface_focus}
+- Color bias: ${up.thumbnail_brief.color_bias}
+- Text rules:
+${(up.thumbnail_brief.text_rules || []).map(r => `- ${r}`).join("\n")}
+- Avoid:
+${(up.thumbnail_brief.avoid || []).map(a => `- ${a}`).join("\n")}
 
-- Visual motif: ${ep?.cover_motif || ""}
-- Light: ${ep?.time_of_day || ""} ${ep?.weather || ""}
-- Color bias: ${typeof sample?.thumbnail_notes === "object" ? sample?.thumbnail_notes?.palette || "" : ""}
-- Text rule: ${pub?.constraints?.thumbnail_text_policy || "minimal overlay text only"}
-- Avoid: ${(ep?.avoid_rules || []).slice(0, 3).join(", ")}
+## Publishing Guardrails
+${(up.publishing_guardrails || []).map(g => `- ${g}`).join("\n")}
 
 ## Pinned Comment
-${brief?.audience || ""} ${brief?.use_case ? "| " + brief.use_case : ""}
+${up.pinned_comment}
 
 ## Publishing Checklist
-
 - [ ] Title confirmed
 - [ ] Description confirmed
 - [ ] Tracklist confirmed
@@ -185,7 +197,7 @@ ${brief?.audience || ""} ${brief?.use_case ? "| " + brief.use_case : ""}
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `upload-pack-${ep?.project_slug || preset.project_id || "export"}.md`;
+    a.download = `${preset.episode?.project_slug || preset.project_id || "export"}.upload-pack.md`;
     a.click();
     URL.revokeObjectURL(url);
     toast.success("Upload Pack이 다운로드되었습니다!");
@@ -249,7 +261,6 @@ ${brief?.audience || ""} ${brief?.use_case ? "| " + brief.use_case : ""}
         return;
       }
 
-      // Normalize response: handle both {preset, prompts} and flat structures
       let normalizedResult: AnalysisResult;
       if (data.preset && data.prompts) {
         normalizedResult = data as AnalysisResult;
@@ -262,7 +273,6 @@ ${brief?.audience || ""} ${brief?.use_case ? "| " + brief.use_case : ""}
         return;
       }
 
-      // Ensure nested objects exist to prevent render crashes
       if (!normalizedResult.preset.generation) {
         normalizedResult.preset.generation = {
           preset_name: "", mood_keywords: [], scene: "", energy_curve: "",
@@ -288,7 +298,6 @@ ${brief?.audience || ""} ${brief?.use_case ? "| " + brief.use_case : ""}
 
   return (
     <div className="min-h-screen pb-16">
-      {/* Header */}
       <header className="pt-12 pb-8 px-4">
         <div className="max-w-4xl mx-auto text-center relative">
           <div className="flex items-center justify-center gap-3 mb-4">
@@ -309,14 +318,12 @@ ${brief?.audience || ""} ${brief?.use_case ? "| " + brief.use_case : ""}
         </div>
       </header>
 
-      {/* Main Content */}
       <main className="px-4">
         <div className="max-w-4xl mx-auto space-y-8">
           <MoodInput onSubmit={handleMoodSubmit} isLoading={isLoading} />
 
           {result && (
             <div className="space-y-8 fade-in">
-              {/* Preset */}
               <section>
                 <div className="flex items-center gap-2 mb-4">
                   <Sparkles className="w-5 h-5 text-primary" />
@@ -327,7 +334,6 @@ ${brief?.audience || ""} ${brief?.use_case ? "| " + brief.use_case : ""}
                 <MoodPreset preset={result.preset} />
               </section>
 
-              {/* Prompts */}
               <section>
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-2">
