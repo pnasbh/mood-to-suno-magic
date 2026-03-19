@@ -1,10 +1,15 @@
 import { Palette, Music2, Zap, Heart, MapPin, Mic, Clock, Layers, Target, Eye, Thermometer, Cloud } from "lucide-react";
 
 export interface EpisodeData {
+  brand: string;
+  channel: string;
   lens: string;
-  series: string;
+  series_code: string;
+  series_name: string;
   project_slug: string;
   scene: string;
+  scene_axis: string;
+  use_context: string;
   place_context: string;
   time_of_day: string;
   season: string;
@@ -19,6 +24,8 @@ export interface EpisodeData {
   instrument_hints: string[];
   texture_keywords: string[];
   sonic_restraints: string[];
+  sound_rules: string[];
+  avoid_rules: string[];
 }
 
 export interface MoodPresetData {
@@ -102,7 +109,7 @@ const MoodPreset = ({ preset }: MoodPresetProps) => {
           </h3>
           {ep?.lens && (
             <span className="text-xs px-2 py-0.5 rounded-md bg-accent/20 text-accent-foreground font-medium">
-              {ep.lens} · {ep.series}
+              {ep.brand} · {ep.series_code} {ep.series_name}
             </span>
           )}
         </div>
