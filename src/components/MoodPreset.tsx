@@ -109,7 +109,7 @@ const MoodPreset = ({ preset }: MoodPresetProps) => {
           </h3>
           {ep?.lens && (
             <span className="text-xs px-2 py-0.5 rounded-md bg-accent/20 text-accent-foreground font-medium">
-              {ep.lens} · {ep.series}
+              {ep.brand} · {ep.series_code} {ep.series_name}
             </span>
           )}
         </div>

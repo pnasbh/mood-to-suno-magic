@@ -59,10 +59,15 @@ const Index = () => {
     const gen = preset.generation;
 
     const episodeData: Record<string, any> = {
+      brand: ep?.brand || "PLS Radio",
+      channel: ep?.channel || "pls-radio",
       lens: ep?.lens || "portrait",
-      series: ep?.series || "P1",
+      series_code: ep?.series_code || "P1",
+      series_name: ep?.series_name || "Tender Portraits",
       project_slug: ep?.project_slug || preset.project_id || "untitled",
       scene: ep?.scene || gen?.scene || "",
+      scene_axis: ep?.scene_axis || "",
+      use_context: ep?.use_context || "",
       place_context: ep?.place_context || gen?.location_hint || "",
       time_of_day: ep?.time_of_day || "evening",
       season: ep?.season || "spring",
@@ -77,6 +82,8 @@ const Index = () => {
       instrument_hints: ep?.instrument_hints || [],
       texture_keywords: ep?.texture_keywords || [],
       sonic_restraints: ep?.sonic_restraints || [],
+      sound_rules: ep?.sound_rules || [],
+      avoid_rules: ep?.avoid_rules || [],
     };
 
     const yamlStr = yaml.dump(episodeData, {
@@ -94,6 +101,94 @@ const Index = () => {
     a.click();
     URL.revokeObjectURL(url);
     toast.success("Episode YAML 파일이 다운로드되었습니다!");
+  };
+
+  const handleExportUploadPack = () => {
+    if (!result) return;
+    const { preset, prompts } = result;
+    const ep = preset.episode;
+    const gen = preset.generation;
+    const brief = preset.project_brief;
+    const pub = preset.publishing;
+    const sample = pub?.channel_samples?.[0];
+
+    const tracklist = prompts.slice(0, 10).map((p, i) => `${String(i + 1).padStart(2, "0")}. ${p.title}`).join("\n");
+
+    const uploadPack = `# Upload Pack Template
+
+## Playlist Identity
+
+- Brand: ${ep?.brand || "PLS Radio"}
+- Series: ${ep?.series_code || ""} ${ep?.series_name || ""}
+- Project Slug: ${ep?.project_slug || preset.project_id || ""}
+- Scene: ${ep?.scene || gen?.scene || ""}
+- Function: ${ep?.function || "deep_listening"}
+- Emotion: ${ep?.emotion_primary || ""}${ep?.emotion_secondary ? " / " + ep.emotion_secondary : ""}
+
+## Primary Title
+
+- Final Title: ${brief?.playlist_name || gen?.preset_name || ""}
+- KO Reference Title: ${gen?.preset_name || ""}
+- Display Label: ${ep?.series_code || ""} · ${ep?.series_name || ""}
+
+## Title Candidates
+
+- Safe: ${brief?.playlist_name || ""}
+- Search-friendly: ${sample?.video_title || ""}
+- Editorial: ${brief?.working_title || ""}
+
+## Description Pack
+
+### KO Short
+${brief?.audience || ""} ${brief?.use_case ? "— " + brief.use_case : ""}
+
+### KO Standard
+${gen?.scene || ""} ${brief?.differentiator ? "\n" + brief.differentiator : ""}${brief?.notes ? "\n" + brief.notes : ""}
+
+### EN Short
+${sample?.description_excerpt || ""}
+
+### EN Standard
+${sample?.description_excerpt || ""} ${sample?.performance_hint ? "\n" + sample.performance_hint : ""}
+
+## Tracklist Preview
+
+${tracklist}
+
+## Search Metadata
+
+- Keywords: ${(gen?.mood_keywords || []).join(", ")}
+- Hashtags: ${(sample?.hashtags || []).join(" ")}
+- Search intent notes: ${ep?.use_context || ""}
+
+## Thumbnail Brief
+
+- Visual motif: ${ep?.cover_motif || ""}
+- Light: ${ep?.time_of_day || ""} ${ep?.weather || ""}
+- Color bias: ${typeof sample?.thumbnail_notes === "object" ? sample?.thumbnail_notes?.palette || "" : ""}
+- Text rule: ${pub?.constraints?.thumbnail_text_policy || "minimal overlay text only"}
+- Avoid: ${(ep?.avoid_rules || []).slice(0, 3).join(", ")}
+
+## Pinned Comment
+${brief?.audience || ""} ${brief?.use_case ? "| " + brief.use_case : ""}
+
+## Publishing Checklist
+
+- [ ] Title confirmed
+- [ ] Description confirmed
+- [ ] Tracklist confirmed
+- [ ] Thumbnail confirmed
+- [ ] Tags confirmed
+`;
+
+    const blob = new Blob([uploadPack], { type: "text/markdown;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `upload-pack-${ep?.project_slug || preset.project_id || "export"}.md`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success("Upload Pack이 다운로드되었습니다!");
   };
 
   const handleExportMarkdown = () => {
