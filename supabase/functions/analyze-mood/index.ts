@@ -89,16 +89,16 @@ Make lyrics poetic, emotionally resonant, and fitting for the musical style. Eac
     const promptStructure = withLyrics
       ? `{
       "id": 1,
-      "title": "Korean song title",
-      "prompt": "English Suno prompt describing the musical style, instruments, mood, tempo, genre mix",
+      "title": "English track title (scene-based, evocative, 3-6 words)",
+      "prompt": "English Suno prompt describing the musical style, instruments, mood, tempo, genre mix (50-100 words)",
       "style": "Genre/Style descriptor",
-      "lyrics_ko": "[Intro]\\n...\\n[Verse 1]\\n...\\n[Pre-Chorus]\\n...\\n[Chorus]\\n...\\n[Verse 2]\\n...\\n[Chorus]\\n...\\n[Bridge]\\n...\\n[Outro]\\n...",
-      "lyrics_en": "[Intro]\\n...\\n[Verse 1]\\n...\\n[Pre-Chorus]\\n...\\n[Chorus]\\n...\\n[Verse 2]\\n...\\n[Chorus]\\n...\\n[Bridge]\\n...\\n[Outro]\\n..."
+      "lyrics_ko": "[Intro]\\n...\\n[Verse 1]\\n...",
+      "lyrics_en": "[Intro]\\n...\\n[Verse 1]\\n..."
     }`
       : `{
       "id": 1,
-      "title": "Korean song title",
-      "prompt": "English Suno prompt describing the musical style, instruments, mood, tempo, genre mix",
+      "title": "English track title (scene-based, evocative, 3-6 words)",
+      "prompt": "English Suno prompt describing the musical style, instruments, mood, tempo, genre mix (50-100 words)",
       "style": "Genre/Style descriptor"
     }`;
 
@@ -154,40 +154,131 @@ Avoid: vaporwave parody, cyberpunk synthwave, comic retro, smoky jazz, novelty d
 
 ## TASK
 Analyze the user's mood and create:
-1. A structured project preset with correct brand/channel/series mapping
-2. 10 diverse Suno AI prompts matching the mood
+1. A structured episode preset YAML (matching the exact fields below)
+2. An upload_pack with all packaging/publishing metadata (matching the exact structure below)
+3. 10 diverse Suno AI prompts matching the mood
 ${lyricsInstruction}
+
+## IMPORTANT TRACK TITLE RULES
+- Track titles must be English, scene-based, evocative (3-6 words)
+- Titles should paint a visual scene, NOT describe the music genre
+- Examples: "Elevator Brass at Dusk", "Suitcase Wheels in Soft Carpet", "Check-In Light, Slow Hands"
 
 Respond in JSON format with this exact structure:
 {
   "preset": {
-    "project_id": "p-kebab-case-project-name",
+    "project_id": "series-descriptive-slug-001",
     "episode": {
-      "brand": "PLS Radio | Modern Quiet Jazz | riverside park",
-      "channel": "pls-radio | modern-quiet-jazz | riverside-park",
-      "lens": "portrait | landscape | still_life (PLS Radio only, omit for other channels)",
-      "series_code": "P1-P6 | L1-L6 | S1-S6 | MJ1-MJ6 | RP1-RP6",
-      "series_name": "exact series name from architecture (e.g. Tender Portraits, Lobby Glow)",
-      "project_slug": "channel-series-descriptive-slug-001",
-      "scene": "vivid scene description with sensory details",
-      "scene_axis": "장면 축 from series definition",
-      "use_context": "사용 맥락 from series definition",
-      "place_context": "brief location context",
+      "brand": "modern_quiet_jazz | pls_radio | riverside_park",
+      "project_slug": "series-descriptive-slug-001",
+      "series_code": "MJ1-MJ6 | P1-P6 | L1-L6 | S1-S6 | RP1-RP6",
+      "scene": "Vivid 2-3 sentence scene description with sensory details. Must paint a specific place, light, texture, and motion.",
+      "place_context": "comma-separated place elements that define the scene",
       "time_of_day": "dawn | morning | late_morning | afternoon | late_afternoon | evening | night | late_night",
       "season": "spring | summer | autumn | winter",
       "weather": "clear | soft_clouds | overcast | rain | snow | fog | humid | windy",
-      "emotion_primary": "primary emotional tone",
-      "emotion_secondary": "secondary emotional nuance",
-      "function": "deep_listening | walking | reading_bgm | focus_work | meditation | driving | social_ambient",
-      "cover_motif": "visual motif for cover art",
-      "listener_state": "listener's mental/physical state",
+      "emotion_primary": "primary emotional tone (2-3 words)",
+      "emotion_secondary": "secondary emotional nuance (2-3 words)",
+      "function": "evening_unwind | morning_focus | deep_listening | walking | reading_bgm | focus_work | meditation | driving | social_ambient",
+      "mood_keywords": ["5 keywords"],
+      "tempo_feel": "descriptive tempo phrase",
+      "groove_profile": "descriptive groove phrase with style reference",
+      "vocal_mode": "instrumental | vocal | mixed",
+      "instrument_hints": ["4-6 instruments from channel sound rules"],
+      "sonic_keywords": ["5 sonic texture keywords"],
+      "sonic_restraints": ["4-5 things to avoid, from channel avoid rules"],
+      "cover_motif": "visual elements for cover art, comma-separated",
       "track_count": 10,
-      "variation_axes": ["3-6 items"],
-      "instrument_hints": ["3-6 instruments"],
-      "texture_keywords": ["3-6 sonic textures"],
-      "sonic_restraints": ["things to avoid"],
-      "sound_rules": ["channel-specific sound rules"],
-      "avoid_rules": ["channel-specific avoid rules"]
+      "lyrics_track_count": 0,
+      "language_mode": "mixed",
+      "marketing_platforms": ["youtube_shorts", "instagram_carousel", "threads"]
+    },
+    "upload_pack": {
+      "playlist_identity": {
+        "brand": "Brand Name (display format, e.g. Modern Quiet Jazz)",
+        "series": "Series Code + Name (e.g. MJ1 Lobby Glow)",
+        "project_slug": "same as episode.project_slug",
+        "scene": "same as episode.scene",
+        "function_ko": "한글 기능 설명 (e.g. 저녁 정리 시간)",
+        "emotion": "한글 감정 설명 (e.g. 정돈된 온기와 차분한 집중)",
+        "series_copy_hook": "한글 시리즈 카피 훅 (e.g. 로비의 늦은 불빛과 정돈된 도착의 공기)"
+      },
+      "source_rules": {
+        "identity_guide": "brand-identity-guide.ko.md filename",
+        "voice_guide": "brand-voice-guide.ko.md filename",
+        "visual_guide": "brand-visual-system-guide.ko.md filename"
+      },
+      "packaging_direction": {
+        "voice_north_star": "English voice direction phrase",
+        "visual_north_star": "English visual direction phrase",
+        "cta_tone": "English CTA tone description",
+        "next_scene_expansion": "한글 다음 씬 확장 방향"
+      },
+      "primary_title": {
+        "final_title": "English Final Title (scene-based, evocative)",
+        "ko_reference_title": "한글 레퍼런스 타이틀",
+        "display_label": "Brand | Series Code | Series Name"
+      },
+      "title_candidates": {
+        "safe": "Safe English title option",
+        "search_friendly": "Search-friendly English title",
+        "editorial": "Editorial English title"
+      },
+      "messaging_guardrails": [
+        "3 English sentences about messaging rules"
+      ],
+      "description_intent": {
+        "scene_phrase": "한글 장면 구문",
+        "motion_hint": "English motion description",
+        "primary_visual_anchor": "English visual anchor",
+        "supporting_detail": "English supporting visual detail"
+      },
+      "description_pack": {
+        "ko_short": "한글 짧은 설명 (2-3문장). 장면 요소로 시작, 플레이리스트 흐름 설명, 정서와 여운으로 마무리.",
+        "ko_standard": "한글 표준 설명 (4-6문장). '이 플레이리스트는...'으로 시작. 초반/중반/마지막 흐름을 설명. 정서와 사용 맥락으로 마무리.",
+        "storyline": {
+          "opening": "한글 오프닝 설명 - 처음에는...",
+          "middle": "한글 중반 설명 - 중반에는...",
+          "closing": "한글 클로징 설명 - 마지막에는..."
+        },
+        "en_short": "English short description (2-3 sentences). Start with scene elements, describe playlist flow.",
+        "en_standard": "English standard description (4-6 sentences). Describe opening/middle/closing flow with scene anchors."
+      },
+      "search_metadata": {
+        "keywords": "comma-separated keywords mixing KO and EN, brand, series, scene elements",
+        "hashtags": "#BrandName, #SeriesCode, #Function",
+        "scene_anchor": "한글 장면 앵커",
+        "series_anchor": "English series anchor",
+        "search_intent_notes": "English search intent note"
+      },
+      "thumbnail_brief": {
+        "visual_motif": "scene visual elements, comma-separated",
+        "primary_anchor": "primary visual focus element",
+        "supporting_detail": "supporting visual detail",
+        "light": "Time of day light",
+        "light_logic": "how light behaves in the scene",
+        "surface_focus": "key material surfaces",
+        "color_bias": "3 color descriptors",
+        "text_rules": [
+          "Use short editorial labels only when needed.",
+          "Avoid big genre overlays.",
+          "Keep type aligned like a gallery caption, not a promo banner."
+        ],
+        "avoid": [
+          "5-8 things to avoid in thumbnail"
+        ]
+      },
+      "publishing_guardrails": [
+        "3 short rules about publishing visual approach"
+      ],
+      "pinned_comment": "English title + 한글 코멘트. 다음 확장 방향 언급.",
+      "publishing_checklist": [
+        "Title confirmed",
+        "Description confirmed",
+        "Tracklist confirmed",
+        "Thumbnail confirmed",
+        "Tags confirmed"
+      ]
     },
     "project_brief": {
       "playlist_name": "Creative playlist name",
@@ -201,10 +292,10 @@ Respond in JSON format with this exact structure:
       "preset_name": "Creative Preset Name (2-4 words, Korean)",
       "mood_keywords": ["keyword1", "keyword2", "keyword3", "keyword4"],
       "scene": "vivid scene description",
-      "energy_curve": "wave/steady/rising/falling",
-      "vocal_mode": "instrumental/vocal/mixed",
-      "tempo_hint": "slow/medium/fast/variable",
-      "era_hint": "timeless/retro/modern/futuristic",
+      "energy_curve": "wave | steady | rising | falling",
+      "vocal_mode": "instrumental | vocal | mixed",
+      "tempo_hint": "slow | medium | fast | variable",
+      "era_hint": "timeless | retro | modern | futuristic",
       "location_hint": "evocative location description",
       "reference_words": ["avoid X", "prefer Y imagery"]
     },
@@ -250,13 +341,13 @@ IMPORTANT RULES:
 - PLS Radio: scene-first, soft daylight, everyday atmosphere
 - Modern Quiet Jazz: genre-first, indoor sophistication, polished jazz
 - riverside park: genre-first, retro city pop, Seoul night drive
-- For PLS Radio, set lens (portrait/landscape/still_life) matching the series prefix
-- For other channels, lens can be omitted or set to the channel's dominant mood
-- sound_rules and avoid_rules MUST come from the selected channel's rules
-- scene_axis and use_context MUST come from the selected series definition
-- Generate 2-3 channel_samples for publishing
-- Make 10 prompts diverse in genre/tempo while maintaining core mood
+- instrument_hints and sonic_restraints MUST come from the selected channel's sound/avoid rules
+- Generate EXACTLY 10 prompts, diverse in genre/tempo while maintaining core mood
 - Each prompt should be 50-100 words for Suno
+- upload_pack descriptions: KO descriptions in natural Korean, EN descriptions in natural English (NOT translations)
+- upload_pack.description_pack.ko_standard: Must follow the pattern "이 플레이리스트는 [장면요소]에서 시작해, 초반에는... 중반에는... 마지막에는... 플레이리스트입니다. [정서] 쪽 정서를 과하지 않게 끌고 가서 [사용맥락]에 잘 어울립니다."
+- upload_pack.description_pack.storyline: opening starts with "처음에는", middle with "중반에는", closing with "마지막에는"
+- KO Sorts items (function_ko, emotion, series_copy_hook, scene_phrase, storyline) must be written in natural Korean
 If an image is provided, analyze its colors, mood, atmosphere to derive musical mood.`;
 
     // Build user message content - support multimodal
@@ -304,7 +395,6 @@ If an image is provided, analyze its colors, mood, atmosphere to derive musical 
       let currentHeaders = headers;
       let currentBody = requestBody;
 
-      // On final retry, fallback to Lovable gateway if using external provider
       if (attempt === MAX_RETRIES && config.provider !== "lovable") {
         console.log("Falling back to Lovable AI Gateway...");
         const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
@@ -349,7 +439,6 @@ If an image is provided, analyze its colors, mood, atmosphere to derive musical 
           const errorText = await response.text();
           lastError = `AI API error (${config.provider}): ${response.status} - ${errorText.slice(0, 200)}`;
           console.error(`Attempt ${attempt + 1} failed:`, lastError);
-          // Retry on 503/500/502/504
           if ([500, 502, 503, 504].includes(response.status) && attempt < MAX_RETRIES) {
             await new Promise(r => setTimeout(r, 1000 * (attempt + 1)));
             continue;
@@ -378,10 +467,6 @@ If an image is provided, analyze its colors, mood, atmosphere to derive musical 
 
     if (!content) {
       throw new Error(lastError || "All AI attempts failed");
-    }
-
-    if (!content) {
-      throw new Error("No content in AI response");
     }
 
     // Parse JSON from the response (handle markdown code blocks)
