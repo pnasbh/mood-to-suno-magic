@@ -51,7 +51,7 @@ const Index = () => {
     const ep = preset.episode;
     if (!ep) return;
 
-    // Match exact sample YAML format
+    // Match exact sample YAML field order
     const episodeData: Record<string, any> = {
       brand: ep.brand || "",
       project_slug: ep.project_slug || preset.project_id || "",
@@ -93,97 +93,103 @@ const Index = () => {
     if (!result) return;
     const { preset, prompts } = result;
     const up = preset.upload_pack;
-    if (!up) return;
+    if (!up) {
+      toast.error("Upload Pack 데이터가 없습니다. 다시 분석해주세요.");
+      return;
+    }
 
     const tracklist = prompts.slice(0, 10).map((p, i) => `- ${String(i + 1).padStart(2, "0")}. ${p.title}`).join("\n");
+
+    const s = (val: any, fallback = "") => val || fallback;
+    const arr = (val: any) => (Array.isArray(val) ? val : []);
 
     const uploadPack = `# Upload Pack
 
 ## Playlist Identity
-- Brand: ${up.playlist_identity.brand}
-- Series: ${up.playlist_identity.series}
-- Project Slug: ${up.playlist_identity.project_slug}
-- Scene: ${up.playlist_identity.scene}
-- Function: ${up.playlist_identity.function_ko}
-- Emotion: ${up.playlist_identity.emotion}
-- Series Copy Hook: ${up.playlist_identity.series_copy_hook}
+- Brand: ${s(up.playlist_identity?.brand)}
+- Series: ${s(up.playlist_identity?.series)}
+- Project Slug: ${s(up.playlist_identity?.project_slug)}
+- Scene: ${s(up.playlist_identity?.scene)}
+- Function: ${s(up.playlist_identity?.function_ko)}
+- Emotion: ${s(up.playlist_identity?.emotion)}
+- Series Copy Hook: ${s(up.playlist_identity?.series_copy_hook)}
 
 ## Source Rules
-- Identity Guide: ${up.source_rules.identity_guide}
-- Voice Guide: ${up.source_rules.voice_guide}
-- Visual Guide: ${up.source_rules.visual_guide}
+- Identity Guide: ${s(up.source_rules?.identity_guide)}
+- Voice Guide: ${s(up.source_rules?.voice_guide)}
+- Visual Guide: ${s(up.source_rules?.visual_guide)}
 
 ## Packaging Direction
-- Voice North Star: ${up.packaging_direction.voice_north_star}
-- Visual North Star: ${up.packaging_direction.visual_north_star}
-- CTA Tone: ${up.packaging_direction.cta_tone}
-- Next Scene Expansion: ${up.packaging_direction.next_scene_expansion}
+- Voice North Star: ${s(up.packaging_direction?.voice_north_star)}
+- Visual North Star: ${s(up.packaging_direction?.visual_north_star)}
+- CTA Tone: ${s(up.packaging_direction?.cta_tone)}
+- Next Scene Expansion: ${s(up.packaging_direction?.next_scene_expansion)}
 
 ## Primary Title
-- Final Title: ${up.primary_title.final_title}
-- KO Reference Title: ${up.primary_title.ko_reference_title}
-- Display Label: ${up.primary_title.display_label}
+- Final Title: ${s(up.primary_title?.final_title)}
+- KO Reference Title: ${s(up.primary_title?.ko_reference_title)}
+- Display Label: ${s(up.primary_title?.display_label)}
 
 ## Title Candidates
-- Safe: ${up.title_candidates.safe}
-- Search-friendly: ${up.title_candidates.search_friendly}
-- Editorial: ${up.title_candidates.editorial}
+- Safe: ${s(up.title_candidates?.safe)}
+- Search-friendly: ${s(up.title_candidates?.search_friendly)}
+- Editorial: ${s(up.title_candidates?.editorial)}
 
 ## Messaging Guardrails
-${(up.messaging_guardrails || []).map(g => `- ${g}`).join("\n")}
+${arr(up.messaging_guardrails).map((g: string) => `- ${g}`).join("\n")}
 
 ## Description Intent
-- Scene Phrase: ${up.description_intent.scene_phrase}
-- Motion Hint: ${up.description_intent.motion_hint}
-- Primary Visual Anchor: ${up.description_intent.primary_visual_anchor}
-- Supporting Detail: ${up.description_intent.supporting_detail}
+- Scene Phrase: ${s(up.description_intent?.scene_phrase)}
+- Motion Hint: ${s(up.description_intent?.motion_hint)}
+- Primary Visual Anchor: ${s(up.description_intent?.primary_visual_anchor)}
+- Supporting Detail: ${s(up.description_intent?.supporting_detail)}
 
 ## Description Pack
 ### KO Short
-${up.description_pack.ko_short}
+${s(up.description_pack?.ko_short)}
 
 ### KO Standard
-${up.description_pack.ko_standard}
+${s(up.description_pack?.ko_standard)}
 
 ### Storyline
-- Opening: ${up.description_pack.storyline.opening}
-- Middle: ${up.description_pack.storyline.middle}
-- Closing: ${up.description_pack.storyline.closing}
+- Opening: ${s(up.description_pack?.storyline?.opening)}
+- Middle: ${s(up.description_pack?.storyline?.middle)}
+- Closing: ${s(up.description_pack?.storyline?.closing)}
 
 ### EN Short
-${up.description_pack.en_short}
+${s(up.description_pack?.en_short)}
 
 ### EN Standard
-${up.description_pack.en_standard}
+${s(up.description_pack?.en_standard)}
 
 ## Tracklist Preview
 ${tracklist}
 
 ## Search Metadata
-- Keywords: ${up.search_metadata.keywords}
-- Hashtags: ${up.search_metadata.hashtags}
-- Scene anchor: ${up.search_metadata.scene_anchor}
-- Series anchor: ${up.search_metadata.series_anchor}
-- Search intent notes: ${up.search_metadata.search_intent_notes}
+- Keywords: ${s(up.search_metadata?.keywords)}
+- Hashtags: ${s(up.search_metadata?.hashtags)}
+- Scene anchor: ${s(up.search_metadata?.scene_anchor)}
+- Series anchor: ${s(up.search_metadata?.series_anchor)}
+- Search intent notes: ${s(up.search_metadata?.search_intent_notes)}
 
 ## Thumbnail Brief
-- Visual motif: ${up.thumbnail_brief.visual_motif}
-- Primary anchor: ${up.thumbnail_brief.primary_anchor}
-- Supporting detail: ${up.thumbnail_brief.supporting_detail}
-- Light: ${up.thumbnail_brief.light}
-- Light logic: ${up.thumbnail_brief.light_logic}
-- Surface focus: ${up.thumbnail_brief.surface_focus}
-- Color bias: ${up.thumbnail_brief.color_bias}
+- Visual motif: ${s(up.thumbnail_brief?.visual_motif)}
+- Primary anchor: ${s(up.thumbnail_brief?.primary_anchor)}
+- Supporting detail: ${s(up.thumbnail_brief?.supporting_detail)}
+- Light: ${s(up.thumbnail_brief?.light)}
+- Light logic: ${s(up.thumbnail_brief?.light_logic)}
+- Surface focus: ${s(up.thumbnail_brief?.surface_focus)}
+- Color bias: ${s(up.thumbnail_brief?.color_bias)}
 - Text rules:
-${(up.thumbnail_brief.text_rules || []).map(r => `- ${r}`).join("\n")}
+${arr(up.thumbnail_brief?.text_rules).map((r: string) => `- ${r}`).join("\n")}
 - Avoid:
-${(up.thumbnail_brief.avoid || []).map(a => `- ${a}`).join("\n")}
+${arr(up.thumbnail_brief?.avoid).map((a: string) => `- ${a}`).join("\n")}
 
 ## Publishing Guardrails
-${(up.publishing_guardrails || []).map(g => `- ${g}`).join("\n")}
+${arr(up.publishing_guardrails).map((g: string) => `- ${g}`).join("\n")}
 
 ## Pinned Comment
-${up.pinned_comment}
+${s(up.pinned_comment)}
 
 ## Publishing Checklist
 - [ ] Title confirmed
